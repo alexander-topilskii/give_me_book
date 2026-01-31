@@ -121,6 +121,9 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
                         <p className="text-base md:text-2xl font-bold text-green-800 greek-font leading-snug">
                             {currentQuestion.greek}
                         </p>
+                        <p className="mt-1 md:mt-2 text-[10px] md:text-sm text-slate-500 font-semibold">
+                            {currentQuestion.russian}
+                        </p>
                     </div>
                  </div>
 

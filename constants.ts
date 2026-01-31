@@ -250,14 +250,14 @@ const generateCodeTask = (): GameTask => {
     }
   }
 
-  const answer = elements.map((item) => item.symbol).join('');
-  const prompt = elements.map((item) => item.label).join(' - ');
+  const answer = elements.map((item) => item.label).join(' - ');
+  const prompt = elements.map((item) => item.symbol).join('');
 
   return {
     mode: GameMode.CODE,
     prompt,
     answer,
-    promptLabel: 'Собери код из 6 элементов'
+    promptLabel: 'Назови элементы кода'
   };
 };
 

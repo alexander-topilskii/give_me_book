@@ -80,21 +80,19 @@ export default function App() {
     }
   };
 
-  // Pull a card
-  const handleStartTurn = useCallback(() => {
+  const drawNextQuestion = useCallback(() => {
     if (!gameMode) return;
-    let nextDeck = [...deck];
-    if (nextDeck.length === 0) {
-      nextDeck = buildDeck(gameMode); // Reshuffle if empty
-    }
-    const question = nextDeck.pop();
-    setDeck(nextDeck);
-    
-    if (question) {
-        setCurrentQuestion(question);
-        setPhase(GamePhase.MOVEMENT);
-    }
-  }, [deck, gameMode]);
+    setDeck((prevDeck) => {
+      let nextDeck = [...prevDeck];
+      if (nextDeck.length === 0) {
+        nextDeck = buildDeck(gameMode); // Reshuffle if empty
+      }
+      const question = nextDeck.pop() ?? null;
+      setCurrentQuestion(question);
+      setPhase(question ? GamePhase.MOVEMENT : GamePhase.TASK_REVEAL);
+      return nextDeck;
+    });
+  }, [gameMode]);
 
   const handleGrade = useCallback((errors: number) => {
     // Calculate movement
@@ -123,13 +121,13 @@ export default function App() {
              // Switch turn logic if not win
              setTimeout(() => {
                  setCurrentPlayerIdx(prev => (prev === 0 ? 1 : 0));
-                 handleStartTurn();
+                 drawNextQuestion();
              }, 800);
         }
 
         return newPlayers;
     });
-  }, [currentPlayerIdx, handleStartTurn]);
+  }, [currentPlayerIdx, drawNextQuestion]);
 
   const isPlayer2Turn = currentPlayerIdx === 1;
 

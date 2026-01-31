@@ -1,20 +1,25 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+### Личные местоимения, окончания глагола **δίνω** и косвенные местоимения (кому?)
 
-# Run and deploy your AI Studio app
+| Лицо      | Русский (кто?) | Ελληνικά (кто?) | Окончание глагола | Форма δίνω | Кому? (рус.) | Κому? (греч.) |
+|-----------|----------------|-----------------|-------------------|------------|--------------|---------------|
+| 1 ед.     | я              | Εγώ             | -ω                | δίνω       | мне          | μου           |
+| 2 ед.     | ты             | Εσύ             | -εις              | δίνεις     | тебе         | σου           |
+| 3 ед. м.  | он             | Αυτός           | -ει               | δίνει      | ему          | του           |
+| 3 ед. ж.  | она            | Αυτή            | -ει               | δίνει      | ей           | της           |
+| 3 ед. ср. | оно            | Αυτό            | -ει               | δίνει      | ему (ср.)    | του           |
+| 1 мн.     | мы             | Εμείς           | -ουμε             | δίνουμε    | нам          | μας           |
+| 2 мн.     | вы             | Εσείς           | -ετε              | δίνετε     | вам          | σας           |
+| 3 мн. м.  | они            | Αυτοί           | -ουν(ε)           | δίνουν(ε)  | им           | τους          |
+| 3 мн. ж.  | они            | Αυτές           | -ουν(ε)           | δίνουν(ε)  | им           | τους          |
+| 3 мн. ср. | они            | Αυτά            | -ουν(ε)           | δίνουν(ε)  | им           | τους          |
 
-This contains everything you need to run your app locally.
+**Ключевое правило:**
 
-View your app in AI Studio: https://ai.studio/apps/drive/1WmoO8Iphq-q6Qb5xJgK8IfFwS6kKZlEH
+- косвенные местоимения **не имеют отдельной формы для среднего рода**
+- **του** = ему / ему (ср.р.)
+- **της** = ей
+- **τους** = им (любой род)
 
-## Run Locally
-
-**Prerequisites:**  Node.js
 
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+[Start Game](https://alexander-topilskii.github.io/give_me_book/)

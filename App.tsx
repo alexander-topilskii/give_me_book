@@ -136,15 +136,15 @@ export default function App() {
       */}
       <div className={`
           absolute inset-0 flex items-center justify-center transition-transform duration-700 ease-in-out pointer-events-none
-          ${isPlayer2Turn ? 'translate-y-[15vh]' : '-translate-y-[15vh]'}
+          ${isPlayer2Turn ? 'sm:translate-y-[15vh] translate-y-[6svh]' : 'sm:-translate-y-[15vh] -translate-y-[6svh]'}
       `}>
          <div className="
              relative z-10 transition-all duration-500 origin-center
              shadow-2xl rounded-3xl pointer-events-auto
              aspect-[4/3]
-             w-[94vw] h-auto
-             md:w-auto md:h-[65vh]
-             max-w-[95vw]
+             w-[94vw] max-w-[95vw]
+             h-auto max-h-[70svh]
+             sm:h-[65vh] sm:w-auto
          ">
              <h1 className={`absolute -top-10 left-0 right-0 text-center text-sm md:text-xl font-bold text-slate-400 tracking-wide uppercase transition-all duration-500 ${isPlayer2Turn ? 'rotate-180 top-auto -bottom-10' : ''}`}>
                 Greek Grammar Journey

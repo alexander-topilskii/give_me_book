@@ -6,6 +6,7 @@ import { Trophy, Trees, Mountain, Cloud, Flag, Tent } from 'lucide-react';
 interface GameBoardProps {
   players: Player[];
   currentPlayerId: number;
+  seed: number;
 }
 
 // Pseudo-random number generator for consistent map generation across renders
@@ -14,7 +15,7 @@ const seededRandom = (seed: number) => {
     return x - Math.floor(x);
 };
 
-export const GameBoard: React.FC<GameBoardProps> = ({ players, currentPlayerId }) => {
+export const GameBoard: React.FC<GameBoardProps> = ({ players, currentPlayerId, seed }) => {
   
   // 1. Generate Organic Path Nodes
   const { pathPoints, decorations } = useMemo(() => {
@@ -36,9 +37,10 @@ export const GameBoard: React.FC<GameBoardProps> = ({ players, currentPlayerId }
         let baseY = (rows - 1 - row) * yStep + (yStep / 2); // Start from bottom
 
         // Add Randomness (Wiggle)
-        // We use the index as a seed so it's consistent
-        const rX = (seededRandom(i * 13) - 0.5) * (xStep * 0.6); 
-        const rY = (seededRandom(i * 7) - 0.5) * (yStep * 0.6);
+        // Combine index and game seed for variability
+        const pointSeed = i * 13 + seed * 100;
+        const rX = (seededRandom(pointSeed) - 0.5) * (xStep * 0.6); 
+        const rY = (seededRandom(pointSeed * 7) - 0.5) * (yStep * 0.6);
 
         points.push({
             index: i,
@@ -50,27 +52,28 @@ export const GameBoard: React.FC<GameBoardProps> = ({ players, currentPlayerId }
     // Generate Decor (Background elements)
     const decors: { id: number; x: number; y: number; type: string; scale: number, rotation: number }[] = [];
     for(let k = 0; k < 15; k++) {
-        const x = seededRandom(k * 123) * 100;
-        const y = seededRandom(k * 456) * 100;
+        const decorSeed = k * 123 + seed * 50;
+        const x = seededRandom(decorSeed) * 100;
+        const y = seededRandom(decorSeed * 456) * 100;
         // Avoid placing too close to path points (simple check)
         const tooClose = points.some(p => Math.hypot(p.x - x, p.y - y) < 8);
         
         if (!tooClose) {
             const types = ['tree', 'tree', 'mountain', 'cloud', 'tent', 'flower'];
-            const type = types[Math.floor(seededRandom(k * 99) * types.length)];
+            const type = types[Math.floor(seededRandom(decorSeed * 99) * types.length)];
             decors.push({
                 id: k,
                 x,
                 y,
                 type,
-                scale: 0.5 + seededRandom(k * 88) * 0.8,
-                rotation: (seededRandom(k*22) - 0.5) * 20
+                scale: 0.5 + seededRandom(decorSeed * 88) * 0.8,
+                rotation: (seededRandom(decorSeed*22) - 0.5) * 20
             });
         }
     }
 
     return { pathPoints: points, decorations: decors };
-  }, []);
+  }, [seed]);
 
   // 2. Generate Smooth SVG Path Data (Bezier)
   const pathData = useMemo(() => {
@@ -82,21 +85,6 @@ export const GameBoard: React.FC<GameBoardProps> = ({ players, currentPlayerId }
         const p2 = pathPoints[i + 1];
         
         // Simple smoothing: control point is midpoint
-        // For better smoothing, we could calculate vectors, but straight L is boring, 
-        // Q (Quadratic) or C (Cubic) is better.
-        // Let's use a simple curve strategy: average points?
-        // Actually, just a simple Catmull-Rom or just curving through midpoints.
-        
-        // Let's do a simple cubic bezier using previous and next points logic would be complex for this snippet.
-        // Simplified: Curvy line between points
-        const mx = (p1.x + p2.x) / 2;
-        const my = (p1.y + p2.y) / 2;
-        
-        // Add a bit of perpendicular offset for "winding" look?
-        // Let's stick to simple lines for reliability, but use 'S' command if we had control points.
-        // Or just Line to Line.
-        // Let's try Quad bezier to midpoint? No, plain line is safest if we want nodes to be exactly ON the line.
-        // But we can just use "L" and rely on the node placement to make it look winding.
         d += ` L ${p2.x} ${p2.y}`;
     }
     return d;
@@ -104,7 +92,8 @@ export const GameBoard: React.FC<GameBoardProps> = ({ players, currentPlayerId }
 
 
   return (
-    <div className="w-full max-w-4xl mx-auto aspect-[4/3] relative rounded-3xl shadow-2xl overflow-hidden border-4 border-amber-800/20 bg-[#eef5e6]">
+    // Modified container: takes full width/height of parent, removing fixed max-width/aspect
+    <div className="w-full h-full relative bg-[#eef5e6]">
         {/* Background Gradient/Pattern */}
         <div className="absolute inset-0 opacity-40" style={{
             backgroundImage: 'radial-gradient(circle at 50% 50%, #fdfbf7 0%, #e2e8c0 100%)'
@@ -208,7 +197,8 @@ export const GameBoard: React.FC<GameBoardProps> = ({ players, currentPlayerId }
             return (
                 <div 
                     key={p.id}
-                    className="absolute w-8 h-8 sm:w-10 sm:h-10 transition-all duration-500 ease-in-out"
+                    // Responsive width/height relative to parent board size
+                    className="absolute w-[8%] h-[10.6%] sm:w-[9%] sm:h-[12%] transition-all duration-500 ease-in-out"
                     style={{
                         left: `${point.x}%`,
                         top: `${point.y}%`,
@@ -225,8 +215,8 @@ export const GameBoard: React.FC<GameBoardProps> = ({ players, currentPlayerId }
                     {/* Pawn Body */}
                     <div className={`
                         relative w-full h-full rounded-full border-2 border-white shadow-lg 
-                        flex items-center justify-center text-white font-bold text-sm sm:text-base
-                        ${p.color} ring-2 ring-black/10 z-10 transform hover:scale-110 transition-transform
+                        flex items-center justify-center text-white font-bold text-[8px] sm:text-sm
+                        ${p.color} ring-1 sm:ring-2 ring-black/10 z-10 transform hover:scale-110 transition-transform
                         ${currentPlayerId === p.id ? 'animate-bounce' : ''}
                     `}>
                         {p.id + 1}

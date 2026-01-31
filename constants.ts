@@ -148,7 +148,31 @@ const GREEK_LETTERS: { symbol: string; name: string }[] = [
   { symbol: 'Φ', name: 'φι' },
   { symbol: 'Χ', name: 'χι' },
   { symbol: 'Ψ', name: 'ψι' },
-  { symbol: 'Ω', name: 'ωμέγα' }
+  { symbol: 'Ω', name: 'ωμέγα' },
+  { symbol: 'α', name: 'άλφα' },
+  { symbol: 'β', name: 'βήτα' },
+  { symbol: 'γ', name: 'γάμμα' },
+  { symbol: 'δ', name: 'δέλτα' },
+  { symbol: 'ε', name: 'έψιλον' },
+  { symbol: 'ζ', name: 'ζήτα' },
+  { symbol: 'η', name: 'ήτα' },
+  { symbol: 'θ', name: 'θήτα' },
+  { symbol: 'ι', name: 'ιώτα' },
+  { symbol: 'κ', name: 'κάππα' },
+  { symbol: 'λ', name: 'λάμδα' },
+  { symbol: 'μ', name: 'μυ' },
+  { symbol: 'ν', name: 'νυ' },
+  { symbol: 'ξ', name: 'ξι' },
+  { symbol: 'ο', name: 'όμικρον' },
+  { symbol: 'π', name: 'πι' },
+  { symbol: 'ρ', name: 'ρο' },
+  { symbol: 'σ', name: 'σίγμα' },
+  { symbol: 'τ', name: 'ταυ' },
+  { symbol: 'υ', name: 'ύψιλον' },
+  { symbol: 'φ', name: 'φι' },
+  { symbol: 'χ', name: 'χι' },
+  { symbol: 'ψ', name: 'ψι' },
+  { symbol: 'ω', name: 'ωμέγα' }
 ];
 
 const NUMBER_UNITS: Record<number, string> = {

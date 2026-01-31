@@ -1,7 +1,14 @@
-export interface TranslationPair {
-  greek: string;
-  russian: string;
-  category: string;
+export enum GameMode {
+  GRAMMAR = 'GRAMMAR',
+  CODE = 'CODE'
+}
+
+export interface GameTask {
+  mode: GameMode;
+  prompt: string;
+  answer: string;
+  promptLabel: string;
+  category?: string;
 }
 
 export interface Player {

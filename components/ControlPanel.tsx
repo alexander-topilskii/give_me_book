@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { GamePhase, TranslationPair, Player } from '../types';
+import { GameMode, GamePhase, GameTask, Player } from '../types';
 import { PLAYER_CONFIG } from '../constants';
 import { Eye, Check, MoveLeft, HelpCircle, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface ControlPanelProps {
   phase: GamePhase;
   currentPlayer: Player;
-  currentQuestion: TranslationPair | null;
+  currentQuestion: GameTask | null;
   onReveal: () => void;
   onGrade: (errors: number) => void;
   onNextTurn: () => void;
   gameWinner: Player | null;
+  onSelectMode: (mode: GameMode) => void;
   onReset: () => void;
 }
 
@@ -21,7 +22,8 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
   onReveal,
   onGrade,
   onNextTurn,
-  gameWinner
+  gameWinner,
+  onSelectMode
 }) => {
   const [isMinimized, setIsMinimized] = useState(false);
   const opponent = PLAYER_CONFIG.find(p => p.id !== currentPlayer.id);
@@ -78,6 +80,26 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
           ${isMinimized ? 'max-h-0 opacity-0' : 'max-h-[500px] opacity-100 pt-2 md:pt-4'}
       `}>
         
+        {phase === GamePhase.SETUP && (
+           <div className="text-center w-full animate-fade-in py-1 md:py-4">
+              <p className="text-xs md:text-sm text-slate-400 font-bold uppercase tracking-widest mb-2 md:mb-4">Выбери режим</p>
+              <div className="grid grid-cols-1 gap-2 md:gap-3">
+                <button
+                  onClick={(e) => { e.stopPropagation(); onSelectMode(GameMode.GRAMMAR); }}
+                  className="w-full py-3 md:py-5 rounded-xl md:rounded-2xl text-base md:text-xl font-bold text-white shadow-xl shadow-indigo-200 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 bg-indigo-500"
+                >
+                  Фразы с книгой
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); onSelectMode(GameMode.CODE); }}
+                  className="w-full py-3 md:py-5 rounded-xl md:rounded-2xl text-base md:text-xl font-bold text-white shadow-xl shadow-rose-200 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 bg-rose-500"
+                >
+                  Цифры и буквы
+                </button>
+              </div>
+           </div>
+        )}
+
         {phase === GamePhase.TASK_REVEAL && (
            <div className="text-center w-full animate-fade-in py-1 md:py-4">
               <button 
@@ -95,9 +117,9 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
                 {/* The Task Card */}
                 <div className="bg-slate-50 rounded-lg md:rounded-2xl p-2 md:p-6 mb-2 md:mb-4 text-center border-2 border-slate-100 shadow-sm relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-1 h-full bg-slate-300"></div>
-                    <p className="text-[9px] md:text-xs text-slate-400 font-bold mb-1 md:mb-3 uppercase tracking-widest">Переведи на греческий</p>
+                    <p className="text-[9px] md:text-xs text-slate-400 font-bold mb-1 md:mb-3 uppercase tracking-widest">{currentQuestion.promptLabel}</p>
                     <h3 className="text-lg md:text-3xl font-bold text-slate-800 leading-tight">
-                        {currentQuestion.russian}
+                        {currentQuestion.prompt}
                     </h3>
                 </div>
 
@@ -119,10 +141,10 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
                     <div className="bg-green-50 rounded-lg md:rounded-2xl p-2 md:p-4 text-center border-2 border-green-200 shadow-sm">
                         <p className="text-[9px] md:text-xs text-green-600 font-bold uppercase mb-0.5 md:mb-1">Правильный ответ</p>
                         <p className="text-base md:text-2xl font-bold text-green-800 greek-font leading-snug">
-                            {currentQuestion.greek}
+                            {currentQuestion.answer}
                         </p>
                         <p className="mt-1 md:mt-2 text-[10px] md:text-sm text-slate-500 font-semibold">
-                            {currentQuestion.russian}
+                            {currentQuestion.prompt}
                         </p>
                     </div>
                  </div>

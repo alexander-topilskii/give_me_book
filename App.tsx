@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { GameBoard } from './components/GameBoard';
 import { ControlPanel } from './components/ControlPanel';
-import { Player, GamePhase, TranslationPair } from './types';
-import { generateQuestions, PLAYER_CONFIG, TOTAL_STEPS, WINNING_STEPS } from './constants';
+import { Player, GameMode, GamePhase, GameTask } from './types';
+import { generateGrammarTasks, generateCodeTasks, PLAYER_CONFIG, TOTAL_STEPS, WINNING_STEPS } from './constants';
 import { Maximize, Minimize } from 'lucide-react';
 
 export default function App() {
@@ -11,11 +11,12 @@ export default function App() {
     { ...PLAYER_CONFIG[1], position: 0 }
   ]);
   const [currentPlayerIdx, setCurrentPlayerIdx] = useState(0);
-  const [phase, setPhase] = useState<GamePhase>(GamePhase.TASK_REVEAL);
+  const [phase, setPhase] = useState<GamePhase>(GamePhase.SETUP);
+  const [gameMode, setGameMode] = useState<GameMode | null>(null);
   
   // Question deck management
-  const [deck, setDeck] = useState<TranslationPair[]>([]);
-  const [currentQuestion, setCurrentQuestion] = useState<TranslationPair | null>(null);
+  const [deck, setDeck] = useState<GameTask[]>([]);
+  const [currentQuestion, setCurrentQuestion] = useState<GameTask | null>(null);
   
   const [winner, setWinner] = useState<Player | null>(null);
   
@@ -26,21 +27,40 @@ export default function App() {
 
   // Initialize Game
   useEffect(() => {
-    resetGame();
+    resetGame(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const resetGame = () => {
+  const buildDeck = (mode: GameMode) => {
+    return mode === GameMode.GRAMMAR ? generateGrammarTasks() : generateCodeTasks();
+  };
+
+  const resetGame = (mode: GameMode | null) => {
     setPlayers([
       { ...PLAYER_CONFIG[0], position: 0 },
       { ...PLAYER_CONFIG[1], position: 0 }
     ]);
-    setDeck(generateQuestions());
+    if (!mode) {
+      setGameMode(null);
+      setDeck([]);
+      setCurrentPlayerIdx(0);
+      setPhase(GamePhase.SETUP);
+      setWinner(null);
+      setCurrentQuestion(null);
+      setGameId(prev => prev + 1);
+      return;
+    }
+    setGameMode(mode);
+    setDeck(buildDeck(mode));
     setCurrentPlayerIdx(0);
     setPhase(GamePhase.TASK_REVEAL);
     setWinner(null);
     setCurrentQuestion(null);
     setGameId(prev => prev + 1);
+  };
+
+  const handleSelectMode = (mode: GameMode) => {
+    resetGame(mode);
   };
 
   const toggleFullscreen = () => {
@@ -59,9 +79,10 @@ export default function App() {
 
   // Pull a card
   const handleStartTurn = useCallback(() => {
+    if (!gameMode) return;
     let nextDeck = [...deck];
     if (nextDeck.length === 0) {
-      nextDeck = generateQuestions(); // Reshuffle if empty
+      nextDeck = buildDeck(gameMode); // Reshuffle if empty
     }
     const question = nextDeck.pop();
     setDeck(nextDeck);
@@ -70,7 +91,7 @@ export default function App() {
         setCurrentQuestion(question);
         setPhase(GamePhase.ANSWER_CHECK);
     }
-  }, [deck]);
+  }, [deck, gameMode]);
 
   const handleReveal = useCallback(() => {
     setPhase(GamePhase.MOVEMENT);
@@ -174,7 +195,8 @@ export default function App() {
             onReveal={handleReveal}
             onGrade={handleGrade}
             gameWinner={winner}
-            onReset={resetGame}
+            onSelectMode={handleSelectMode}
+            onReset={() => resetGame(null)}
          />
       </div>
 
@@ -188,7 +210,7 @@ export default function App() {
                     <span className={`text-2xl md:text-3xl ${winner.id === 0 ? 'text-indigo-600' : 'text-rose-600'} font-bold`}>{winner.name}</span>
                 </p>
                 <button 
-                    onClick={resetGame}
+                    onClick={() => resetGame(null)}
                     className="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 md:py-4 md:px-10 rounded-full text-lg md:text-xl shadow-lg transition-transform hover:scale-105 active:scale-95"
                 >
                     Новая игра

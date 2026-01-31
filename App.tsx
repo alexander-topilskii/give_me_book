@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { GameBoard } from './components/GameBoard';
 import { ControlPanel } from './components/ControlPanel';
+import { ModeSelect } from './components/ModeSelect';
 import { Player, GameMode, GamePhase, GameTask } from './types';
 import { generateGrammarTasks, generateCodeTasks, PLAYER_CONFIG, TOTAL_STEPS, WINNING_STEPS } from './constants';
 import { Maximize, Minimize } from 'lucide-react';
@@ -51,11 +52,13 @@ export default function App() {
       return;
     }
     setGameMode(mode);
-    setDeck(buildDeck(mode));
+    const nextDeck = buildDeck(mode);
+    const question = nextDeck.pop() ?? null;
+    setDeck(nextDeck);
+    setCurrentQuestion(question);
     setCurrentPlayerIdx(0);
-    setPhase(GamePhase.TASK_REVEAL);
+    setPhase(question ? GamePhase.MOVEMENT : GamePhase.TASK_REVEAL);
     setWinner(null);
-    setCurrentQuestion(null);
     setGameId(prev => prev + 1);
   };
 
@@ -89,13 +92,9 @@ export default function App() {
     
     if (question) {
         setCurrentQuestion(question);
-        setPhase(GamePhase.ANSWER_CHECK);
+        setPhase(GamePhase.MOVEMENT);
     }
   }, [deck, gameMode]);
-
-  const handleReveal = useCallback(() => {
-    setPhase(GamePhase.MOVEMENT);
-  }, []);
 
   const handleGrade = useCallback((errors: number) => {
     // Calculate movement
@@ -124,14 +123,13 @@ export default function App() {
              // Switch turn logic if not win
              setTimeout(() => {
                  setCurrentPlayerIdx(prev => (prev === 0 ? 1 : 0));
-                 setPhase(GamePhase.TASK_REVEAL);
-                 setCurrentQuestion(null);
+                 handleStartTurn();
              }, 800);
         }
 
         return newPlayers;
     });
-  }, [currentPlayerIdx]);
+  }, [currentPlayerIdx, handleStartTurn]);
 
   const isPlayer2Turn = currentPlayerIdx === 1;
 
@@ -182,23 +180,39 @@ export default function App() {
       </div>
 
       {/* Control Panel Layer */}
-      <div 
-        className={`absolute left-0 right-0 z-30 transition-all duration-700 ease-in-out transform flex justify-center
-            ${isPlayer2Turn ? 'top-0 rotate-180 items-start' : 'bottom-0 rotate-0 items-end'}
-        `}
-      >
-         <ControlPanel 
-            phase={phase}
-            currentPlayer={players[currentPlayerIdx]}
-            currentQuestion={currentQuestion}
-            onNextTurn={handleStartTurn}
-            onReveal={handleReveal}
-            onGrade={handleGrade}
-            gameWinner={winner}
-            onSelectMode={handleSelectMode}
-            onReset={() => resetGame(null)}
-         />
-      </div>
+      {phase !== GamePhase.SETUP && (
+        <div 
+          className={`absolute left-0 right-0 z-30 transition-all duration-700 ease-in-out transform flex justify-center
+              ${isPlayer2Turn ? 'top-0 rotate-180 items-start' : 'bottom-0 rotate-0 items-end'}
+          `}
+        >
+           <ControlPanel 
+              phase={phase}
+              currentPlayer={players[currentPlayerIdx]}
+              currentQuestion={currentQuestion}
+              onGrade={handleGrade}
+              gameWinner={winner}
+           />
+        </div>
+      )}
+
+      {phase === GamePhase.MOVEMENT && currentQuestion && (
+        <div 
+          className={`absolute left-0 right-0 z-20 pointer-events-none transition-all duration-700 ease-in-out transform flex justify-center
+              ${isPlayer2Turn ? 'bottom-0 rotate-0 items-end' : 'top-0 rotate-180 items-start'}
+          `}
+        >
+          <div className="w-full max-w-2xl mx-auto px-3 pb-2 pt-1">
+            <div className="bg-white/85 backdrop-blur border border-slate-200 rounded-full px-4 py-1 text-center text-[10px] md:text-xs text-slate-500 shadow-sm">
+              <span className="font-bold uppercase tracking-wider text-slate-400">Задание:</span> {currentQuestion.prompt}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {phase === GamePhase.SETUP && (
+        <ModeSelect onSelectMode={handleSelectMode} />
+      )}
 
       {/* Overlay for Winner (Global) */}
       {winner && (
